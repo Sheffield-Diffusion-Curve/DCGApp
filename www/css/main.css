@@ -1,0 +1,10 @@
+
+div .tabpane {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.mjx-chtml{ 
+  font-size: 200% !important; 
+  
+}
