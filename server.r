@@ -1,36 +1,27 @@
 library(shiny)
+library(shinyjs)
 library(shinydashboard)
 library(data.table)
 library(DT)
-library(scales)
-library(ggplot2)
+library(DCGen)
 
 source("src/elicitationIO.r")
-source("src/bassIO.r")
 
 
 server <- function(input, output, session) {
   vals <- reactiveValues()
   
-  vals$Data <- getDefaultInputData(n=2)
+  vals$Data <- getDefaultInputData()
   vals$LastSelected <- 1
-  vals$NextID <- 3
+  vals$NextID <- 4
   
-  Elcs <- reactive({
-    Elcs <- inputELCs(vals$Data)
-  })
+  vals$Experts <- NULL
+  vals$Pars <- NULL
+  vals$Curves <- NULL
   
-  SimuNT <- reactive({
-    elcs <- Elcs()
-    # print(elcs)
-    size <- input$num_iter
-    agg <- input$agg_method
-    randMNT(elcs, size, agg)
-  })  
-  
-  vals$SimuPQ <- NULL
-  vals$SimuCurves <- NULL
-  
+  disable("downloadReport")
+  disable("downloadParameters")
+  disable("downloadCurves")
   
   output$ElicitationBox <- renderUI({
     box(
@@ -77,27 +68,6 @@ server <- function(input, output, session) {
         '
       )
     datatable(DT, escape = F)
-  })
-  
-  
-  output$PlotDistNT <- renderPlot({
-    mnt <- SimuNT()
-    par(mfrow=c(1, 3))
-    
-    pts <- mnt$M
-    den <- density(pts, na.rm=T, bw=diff(range(pts))/10)
-    hist(pts, main=expression(M), xlab="Value", col="grey", freq=F)
-    polygon(den, col=alpha("grey", 0.2))
-    
-    pts <- mnt$N
-    den <- density(pts, na.rm=T, bw=diff(range(pts))/10)
-    hist(pts, main=expression(N[1]), xlab="Value", col="grey", freq=F)
-    polygon(den, col=alpha("grey", 0.2))
-    
-    pts <- mnt$T
-    den <- density(pts, na.rm=T, bw=diff(range(pts))/10)
-    hist(pts, main=expression(t), xlab="Value", col="grey", freq=F)
-    polygon(den, col=alpha("grey", 0.2))
   })
   
   
@@ -158,16 +128,17 @@ server <- function(input, output, session) {
   })
   
   
-  observeEvent(input$updateBass, {
-    mnt <- SimuNT()
+  observeEvent({input$updateBass; input$dcg}, {
+    vals$Experts <- inputELCs(vals$Data) 
     
+    nt <- input$num_iter
     # Create a Progress object
-    progress <- shiny::Progress$new(session, min=1, max=nrow(mnt))
+    progress <- shiny::Progress$new(session, min=1, max=nt)
     progress$set(message = "Translating Data", value = 0)
 
     on.exit(progress$close())
     
-    updateProgress <- function(value = NULL, detail = NULL) {
+    updateProgress <- function(value=NULL, detail =NULL) {
       if (is.null(value)) {
         value <- progress$getValue()
         value <- value + (progress$getMax() - value) / 5
@@ -175,112 +146,128 @@ server <- function(input, output, session) {
       progress$set(value = value, detail = detail)
     }
     
-    vals$SimuPQ <- translateNT2PQ(mnt, updateProgress)
+    vals$Pars <- rand_parameters(vals$Experts, nt, method=input$agg_method, type="continuous")
     
-    vals$SimuCurves <- simulateCurves(vals$SimuPQ, input$projT)
+    vals$Curves <- generate_diffusion_curves(vals$Pars, t_max=input$projT, progress=updateProgress, dt=0.5)
+
     vals$CurrentT <- input$projT
+    
+    shinyjs::enable("downloadReport")
+    shinyjs::enable("downloadParameters")
+    shinyjs::enable("downloadCurves")
+  })
+  
+  output$PlotDistNT <- renderPlot({
+    if (is.null(vals$Pars)) return ()
+    visualise_inputs(vals$Pars)
   })
   
   
   output$PlotDistPQ <- renderPlot({
-    if (is.null(vals$SimuPQ)) return ()
-    
-    par(mfrow=c(1, 3))
-    
-    pts <- vals$SimuPQ$M
-    den <- density(pts, na.rm=T, bw=diff(range(pts))/10)
-    hist(pts, main=expression(M), xlab="Value", col="grey", freq=F)
-    polygon(den, col=alpha("grey", 0.2))
-    
-    pts <- vals$SimuPQ$P
-    den <- density(pts, na.rm=T, bw=diff(range(pts))/10)
-    hist(pts, main=expression(P), xlab="Value", col="grey", freq=F)
-    polygon(den, col=alpha("grey", 0.2))
-    
-    pts <- vals$SimuPQ$Q
-    den <- density(pts, na.rm=T, bw=diff(range(pts))/10)
-    hist(pts, main=expression(Q), xlab="Value", col="grey", freq=F)
-    polygon(den, col=alpha("grey", 0.2))
+    if (is.null(vals$Pars)) return ()
+    visualise_fitted(vals$Pars)
   })
   
   
   output$PlotBass <- renderPlot({
-    curves <- vals$SimuCurves
+    curves <- vals$Curves
     if (is.null(curves)) return ()
     
     t_max <- max(ceiling(input$projT), 1)
     
     if (t_max > vals$CurrentT) {
-      vals$SimuCurves <- simulateCurves(vals$SimuPQ, input$projT)
-      curves <- vals$SimuCurves
-      vals$CurrentT <- input$projT
+      vals$Curves <- generate_diffusion_curves(vals$Pars, t_max=t_max, progress=updateProgress, dt=0.5)
     }
     
-    times <- 0:t_max
-    size <- min(500, dim(curves)[3])
-    y_max <- max(curves[, 2, ])
-    
-    Ns <- curves[times+1, 2, ]
-    dNs <- curves[times+1, 3, ]
-    
-    plot(0, 0, 
-         xlim=c(0, t_max), ylim=c(0, y_max), 
-         xlab="Time", ylab="Number of total adoptions", 
-         type="n", las=2)
-    
-    if (input$linesShow) {
-      for (i in 1:size) {
-        sel <- Ns[, i]
-        alpha <- min(0.01, max(0.2, 50/size))
-        lines(times, sel, col=alpha("aquamarine", 0.1))
-      }
-    }
-    
-    if (input$centShow) {
-      cent = (1 - input$centVal/100)/2
-      lines(times, apply(Ns, 1, function(x) quantile(x, cent)), lwd=1.2)
-      lines(times, apply(Ns, 1, function(x) quantile(x, 1-cent)), lwd=1.2)
-    }
-    
-    if (input$meanShow) {
-      lines(times, rowMeans(Ns), lwd=1.5)
-    }
-    if (input$medianShow) {
-      lines(times, apply(Ns, 1, median), lwd=1.5)
-    }
-    
-    if (input$dnShow) {
-      if (input$linesShow) {
-        for (i in 1:size) {
-          sel <- dNs[, i]
-          alpha <- min(0.01, max(0.2, 50/size))
-          lines(times, sel, col=alpha("orange", 0.1))
-        }
-      }
-      
-      if (input$centShow) {
-        cent = (1 - input$centVal/100)/2
-        lines(times, apply(dNs, 1, function(x) quantile(x, cent)), lwd=1.2, lty=2)
-        lines(times, apply(dNs, 1, function(x) quantile(x, 1-cent)), lwd=1.2, lty=2)
-      }
-      if (input$meanShow) {
-        lines(times, rowMeans(dNs), lwd=1.5)
-      }
-      if (input$medianShow) {
-        lines(times, apply(dNs, 1, median), lwd=1.5)
-      }
-    }
+    visualise_curves(curves, dN=input$dnShow,  ci_range=input$centVal, statistics=input$curveType=="stats", average=input$avgType)
     
   })
   
   
   output$SummaryBass <- renderPrint({
     cat("Input parameters\n")
-    print(summary(SimuNT()))
+    print(summary(vals$Pars$Parameters[, c("M", "N1", "t")]))
     
-    if (!is.null(vals$SimuPQ)) {
-      cat("\nOutput parameters\n")
-      print(summary(vals$SimuPQ))
-    }
+    
+    cat("\nOutput parameters\n")
+    print(summary(vals$Pars$Parameters[, c("M", "p", "q")]))
   })
+  
+  
+  output$downloadReport <- downloadHandler(
+    filename = function() {
+      paste(input$fileName, sep = ".", switch(
+        input$format, PDF = "pdf", HTML = "html", Word = "docx"
+      ))
+    },
+    
+    content = function(file) {
+      # if (is.null(vals$Curves)) {
+      #   vals$Experts <- inputELCs(vals$Data) 
+      #   
+      #   nt <- input$num_iter
+      #   # Create a Progress object
+      #   progress <- shiny::Progress$new(session, min=1, max=nt)
+      #   progress$set(message = "Translating Data", value = 0)
+      #   
+      #   on.exit(progress$close())
+      #   
+      #   updateProgress <- function(value=NULL, detail =NULL) {
+      #     if (is.null(value)) {
+      #       value <- progress$getValue()
+      #       value <- value + (progress$getMax() - value) / 5
+      #     }
+      #     progress$set(value = value, detail = detail)
+      #   }
+      #   
+      #   vals$Pars <- rand_parameters(vals$Experts, nt, method=input$agg_method, type="continuous")
+      #   
+      #   vals$Curves <- generate_diffusion_curves(vals$Pars, t_max=input$projT, progress=updateProgress, dt=0.5)
+      #   
+      #   vals$CurrentT <- input$projT
+      # }
+      mcvs <- apply(vals$Curves, c(1, 2), ifelse(input$avgType=="mean", mean, median))
+      mcvs <- round(mcvs, 2)
+      mcvs <- mcvs[mcvs[, 1] == round(mcvs[, 1]),]
+      mcvs <- mcvs[seq.int(1, nrow(mcvs), by=max(round(nrow(mcvs)/10), 1)), ]
+      rownames(mcvs) <- rep("", nrow(mcvs))
+      
+      # src <- normalizePath("report_template.Rmd")
+      # temporarily switch to the temp dir, in case you do not have write
+      # permission to the current working directory
+      # owd <- setwd(tempdir())
+      # on.exit(setwd(owd))
+      # file.copy(src, "report.Rmd", overwrite=TRUE)
+      
+      library(rmarkdown)
+      format <-  switch(
+        input$format,
+        PDF=pdf_document(), HTML=html_document(), Word=word_document())
+  
+      out <- render(input="report_template.Rmd",
+                    output_format=format,
+                    output_dir="temp", 
+                    envir = list(dat=dat, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
+      
+      file.copy(out, file)
+    },
+    contentType = "text/plain"
+  )
+  
+  output$downloadParameters <- downloadHandler(
+    filename = "DCG_Parameters.csv",
+    
+    content = function(file) {
+      write.csv(vals$Pars$Parameters, file)
+    }
+  )
+  
+  output$downloadCurves <- downloadHandler(
+    filename = "DCG_Curves.csv",
+    
+    content = function(file) {
+      cvs <- data.frame(Time=vals$Curves[,1,1], Nt=vals$Curves[, 2, ])
+      write.csv(cvs, file)
+    }
+  )
 }

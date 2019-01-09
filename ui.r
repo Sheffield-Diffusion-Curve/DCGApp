@@ -11,6 +11,11 @@ ui <- dashboardPage(
     menuItem("Methods", tabName = "methods"),    
     menuItem("Tutorial", tabName = "tutorial"),
     menuItem(h2("DCG"), tabName = "main"),
+    menuItem("Control", numericInput("num_iter", label = "No. Iterations", value = 200, min=0, max=1000),
+             selectInput('agg_method', 'Aggregation method', c("Mixture"="mixture", "Pooling"="average")),
+             numericInput("projT", label = "Projection time", value = 20, min=0, step=1),
+             actionButton("dcg", "Generate curves"),
+             startExpanded = TRUE),
     menuItem("Report", tabName = "report"),
     menuItem("FAQs", tabName = "faqs"),
     menuItem("About us", tabName = "info")
@@ -32,40 +37,59 @@ ui <- dashboardPage(
     
     tabItem(tabName = "main", box(width = 12, 
                                   uiOutput("ElicitationBox"),
-                                  box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Input Distributions", fluidRow(
-                                    column(width = 4, numericInput("num_iter", label = "No. Iterations", value = 200, min=0, max=1000)),
-                                    column(width = 4, selectInput('agg_method', 'Aggregation method', c("Mixture"="mixture", "Pooling"="average"))),
-                                    column(width = 4, actionButton("updateBass", "Update", width="100%")),
-                                    column(width = 12, plotOutput("PlotDistNT", height = "200px"))
-                                  )),
-                                  box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Output Distributions", fluidRow(
+                                  # box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Input Distributions", fluidRow(
+                                  #   column(width=3, numericInput("num_iter", label = "No. Iterations", value = 200, min=0, max=1000)),
+                                  #   column(width=3, selectInput('agg_method', 'Aggregation method', c("Mixture"="mixture", "Pooling"="average"))),
+                                  #   column(width=3, numericInput("projT", label = "Projection time", value = 20, min=0, step=1)),
+                                  #   column(width=3, actionButton("updateBass", "Generate", width="100%")),
+                                  #   column(width=12, plotOutput("PlotDistNT", height = "200px"))
+                                  # )),
+                                  box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Sampled Parameters", fluidRow(
                                     #actionButton("updateBass", "Update"),
-                                    plotOutput("PlotDistPQ", height = "200px")
+                                    column(width=12, h4("Input")),
+                                    column(width=12, plotOutput("PlotDistNT", height = "200px")),
+                                    column(width=12, h4("Fitted")),
+                                    column(width=12, plotOutput("PlotDistPQ", height = "200px"))
                                   )),
-                                  box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Bass Diffusion Curves", fluidRow(
-                                    column(width = 3, 
-                                           sliderInput("centVal", label = "Centile(%)", min = 0, max = 100, value = 95),
-                                           checkboxInput("centShow", label = "Show centiles", value = TRUE),
-                                           checkboxInput("meanShow", label = "Show means", value = TRUE),
-                                           checkboxInput("medianShow", label = "Show medians", value = TRUE),
-                                           checkboxInput("linesShow", label = "Show curves", value = TRUE),
+                                  
+                                  # box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Output Distributions", fluidRow(
+                                  #   #actionButton("updateBass", "Update"),
+                                  #   plotOutput("PlotDistPQ", height = "200px")
+                                  # )),
+                                  box(width = 12, collapsible = TRUE, collapsed = FALSE, title = "Bass Diffusion Curves", fluidRow(
+                                    column(width = 3,
                                            checkboxInput("dnShow", label = "Show new adoptions", value = TRUE),
-                                           numericInput("projT", label = "Projection time", value = 10, min=0, step=1)
+                                           radioButtons("curveType", "Showing curves", 
+                                                        c("Row curves"="curves", "Statistics"="stats"),
+                                                        inline = TRUE),
+                                           sliderInput("centVal", label = "Centile(%)", min = 0, max = 100, value = 70),
+                                           radioButtons("avgType", "Average", 
+                                                        c("Median"="median", "Mean"="mean", ),
+                                                        inline = TRUE)
                                     ),
                                     column(width = 9, plotOutput("PlotBass", height = "400px"))
                                   )),
-                                  box(width = 12, collapsible = TRUE, title = "Summary", verbatimTextOutput("SummaryBass"))
+                                  box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Summary", verbatimTextOutput("SummaryBass"))
     )),
-    tabItem(tabName = "report", box(width = 12, 
-                                    h3("Download summary report"),
-                                    p("This document contains all the tables and figures generated from the DifGen of your elicitation input."),
-                                    radioButtons('format', 'Please select the document format you require', 
-                                                 c('PDF', 'HTML', 'Word'),
-                                                 inline = TRUE),
-                                    downloadButton('downloadReport', 'Download summary report'),
-                                    br(), br(), 
-                                    p("NB generating the document can take some time.")
-    )),
+    tabItem(tabName = "report", 
+            box(width=12, 
+                h3("Download summary report"),
+                p("This document contains all the tables and figures generated from the DifGen of your elicitation input."),
+                radioButtons('format', 'Please select the document format you require', 
+                             c('PDF', 'HTML', 'Word'),
+                             inline = TRUE),
+                textInput("fileName", "File name", value="DCG"),
+                downloadButton("downloadReport", "Download summary report"),
+                br(), br(), 
+                p("NB generating the document can take some time.")
+                ),
+            box(width=12,
+                h3("Download data"),
+                downloadButton("downloadParameters", "Download Parameters"),
+                br(), br(), 
+                downloadButton("downloadCurves", "Download Diffusion Curves")
+                )
+    ),
     
     tabItem(tabName = "faqs", box(width = 12, h2("FAQs"), includeMarkdown("www/faq.md"))),
     

@@ -1,36 +1,21 @@
+library(data.table)
 library(DCGen)
 
-getDefaultData <- function(n=2) {
+getDefaultInputData <- function() {
   data.table(
-    Expert = paste0("Expert", 1:n),
-    M = rep(100, n),
-    M_L = rep(90, n),
-    M_U = rep(110, n),
-    N0 = rep(10, n),
-    N0_L = rep(7, n),
-    N0_U = rep(13, n),
-    t = rep(8, n),
-    t_L = rep(5, n),
-    t_U = rep(10, n)
-  )
-}
-
-
-getDefaultInputData <- function(n=2) {
-  data.table(
-    Expert = paste0("Expert", 1:n),
-    M = rep("Normal", n),
-    M_1 = rep(100, n),
-    M_2 = rep(1, n),
-    M_3 = rep(0, n),
-    N = rep("Normal", n),
-    N_1 = rep(10, n),
-    N_2 = rep(1, n),
-    N_3 = rep(0, n),
-    "T" = rep("Gamma", n),
-    T_1 = rep(8, n),
-    T_2 = rep(1, n),
-    T_3 = rep(0, n)
+    Expert = c("Expert A", "Expert B", "Expert C"),
+    M = rep("Triangle", 3),
+    M_1 = c(54.2, 158.8, 204.4),    
+    M_2 = c(10, 30, 30),
+    M_3 = c(150, 230, 410),
+    N = rep("Triangle", 3),
+    N_1 = c(2.3, 5.7, 7.1),
+    N_2 = c(0, 2, 2),
+    N_3 = c(5, 15, 10),
+    "T" = rep("Normal", 3),
+    T_1 = c(5.1, 9.9, 3.5),
+    T_2 = c(1.5, 1.5, 1.1),
+    T_3 = c(NA, NA, NA)
   )
 }
 
@@ -38,9 +23,9 @@ getDefaultInputData <- function(n=2) {
 getNewInputData <- function(id) {
   data.frame(
     Expert = paste0("Expert", id),
-    M = "Normal", M_1 = 100, M_2 = 1, M_3 = 0,
-    N = "Normal", N_1 = 10, N_2 = 1, N_3 = 0,       
-    "T" = "Gamma", T_1 = 8, T_2 = 1, T_3 = 0
+    M = "Normal", M_1 = 100, M_2 = 1, M_3 = NA,
+    N = "Normal", N_1 = 5, N_2 = 1, N_3 = NA,       
+    "T" = "Normal", T_1 = 4, T_2 = 1, T_3 = NA
   )
 }
 
@@ -50,41 +35,16 @@ showInputData <- function(dat) {
     Expert=dat[["Expert"]],
     M=paste0(dat[[2]], "(", apply(dat[, 3:5], 1, function(x) {x <- x[!is.na(x)]; paste(x, collapse = ", ")}),")"),
     N1=paste0(dat[[6]], "(", apply(dat[, 7:9], 1, function(x) {x <- x[!is.na(x)]; paste(x, collapse = ", ")}),")"),
-    "T"=paste0(dat[[10]], "(", apply(dat[, 11:13], 1, function(x) {x <- x[!is.na(x)]; paste(x, collapse = ", ")}),")")
+    "t'"=paste0(dat[[10]], "(", apply(dat[, 11:13], 1, function(x) {x <- x[!is.na(x)]; paste(x, collapse = ", ")}),")")
   )
 }
 
 
 inputELCs <- function(dat) {
-  res <- list()
-
-  elcs <- apply(dat, 1, function(x) {
-    input_elicitation(x[2], x[3:5])
-  })
-  names(elcs) <- dat$Expert
-  res$m <- aggregate_elicitations(elcs) 
+  experts <- apply(dat, 1, function(x) new_expert(x[1], x[2], x[3:5], x[6], x[7:9], x[10], x[11:13]))
+  experts <- aggregate_experts(experts)
   
-  elcs <- apply(dat, 1, function(x) {
-    input_elicitation(x[6], x[7:9])
-  })
-  names(elcs) <- dat$Expert
-  res$n1 <- aggregate_elicitations(elcs) 
-  
-  elcs <- apply(dat, 1, function(x) {
-    input_elicitation(x[10], x[11:13])
-  })
-  names(elcs) <- dat$Expert
-  res$t <- aggregate_elicitations(elcs) 
-  res
-}
-
-
-randMNT <- function(elcs, size, method) {
-  data.frame(
-    "M" = rand_elicitation(elcs$m, size, method),
-    "N" = rand_elicitation(elcs$n1, size, method),
-    "T" = rand_elicitation(elcs$t, size, method)
-  )
+  experts
 }
 
 

@@ -1,0 +1,72 @@
+---
+title: "Diffusion Curve Generator Output"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# 1. Introduction
+These results are produced by diffusion curve generator hosted at [insert URL] and developed by The University of Sheffield.  The method underpinning the calculations is based on a paper by Sabine Grimm (see citation information at the end of this report)
+
+The method takes probability distributions for three diffusion parameters to generate curves based on the Bass Model of Product Diffusion.  The parameters, $m$, $N1$ and $t'$, represent the maximum number of adoptions attained, the number of adoptions in the first year and the time at which the rate of diffusion reduces, respectively.
+
+\pagebreak
+
+
+# 2. Elicitation Input
+
+Input distributions
+
+```{r, echo=FALSE}
+showInputData(dat)
+```
+
+Distributions of the input parameters (`r pars$Size` samples). `r ifelse(pars$Method=="mixture", "The parameters were sampled from mixture distributions.", "The parameters were linearly averaged")` 
+
+```{r, echo=FALSE, fig.width=10, fig.height=3, fig.fullwidth=TRUE}
+g <- visualise_inputs(pars)
+```
+
+Summary of sample input parameters
+```{r, echo=FALSE}
+summary(pars$Parameters[, c("M", "N1", "t")])
+```
+
+\pagebreak
+
+# 3. Parameter fitting
+
+Distributions of the fitted parameters (`r pars$Size` samples).
+```{r, echo=FALSE, fig.width=10, fig.height=3, fig.fullwidth=TRUE}
+g <- visualise_fitted(pars)
+```
+
+Summary of sample input parameters
+```{r, echo=FALSE}
+summary(pars$Parameters[, c("M", "p", "q")])
+```
+
+\pagebreak
+
+# 4. Generated diffusion curves
+
+Generated diffusion curves. `r if(input$curveType=="stats"){paste0("Statistics of ", input$avgType, " and ", input$centVal, "% quantiles showed.")}` 
+
+- $N(t)$ Number of cumulated adoptions at $t$
+- $dN(t)$ New adoptions at $t$
+
+```{r, echo=FALSE, fig.width=10, fig.height=7, fig.fullwidth=TRUE}
+visualise_curves(curves, dN=input$dnShow,  ci_range=input$centVal, statistics=input$curveType=="stats", average=input$avgType)
+```
+
+Average curves (`r input$avgType`)
+
+```{r, echo=FALSE}
+mcvs
+```
+
+## Reference
+Grimm SE, Stevens JW, Dixon S.  Estimating Future Health Technology Diffusion Using Expert Beliefs Calibrated to an Established Diffusion Model.  Value Health. 2018 Aug;21(8):944-950.

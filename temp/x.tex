@@ -1,0 +1,194 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={Diffusion Curve Generator Output},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\newcommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{Diffusion Curve Generator Output}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{}
+    \preauthor{}\postauthor{}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{09 January, 2019}
+
+
+\begin{document}
+\maketitle
+
+\section{1. Introduction}\label{introduction}
+
+These results are produced by diffusion curve generator hosted at
+{[}insert URL{]} and developed by The University of Sheffield. The
+method underpinning the calculations is based on a paper by Sabine Grimm
+(see citation information at the end of this report)
+
+The method takes probability distributions for three diffusion
+parameters to generate curves based on the Bass Model of Product
+Diffusion. The parameters, \(m\), \(N1\) and \(t'\), represent the
+maximum number of adoptions attained, the number of adoptions in the
+first year and the time at which the rate of diffusion reduces,
+respectively.
+
+\pagebreak
+
+\section{2. Elicitation Input}\label{elicitation-input}
+
+Input distributions
+
+\begin{verbatim}
+##      Expert                        M                   N1               t'
+## 1: Expert A  Triangle(54.2, 10, 150)  Triangle(2.3, 0, 5) Normal(5.1, 1.5)
+## 2: Expert B Triangle(158.8, 30, 230) Triangle(5.7, 2, 15) Normal(9.9, 1.5)
+## 3: Expert C Triangle(204.4, 30, 410) Triangle(7.1, 2, 10) Normal(3.5, 1.1)
+\end{verbatim}
+
+Distributions of the input parameters (300 samples). The parameters were
+sampled from mixture distributions.
+
+\includegraphics{E:/Source/DCGenApp/temp/x_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+Summary of sample input parameters
+
+\begin{verbatim}
+##        M                N1                t         
+##  Min.   : 14.54   Min.   : 0.5253   Min.   : 2.195  
+##  1st Qu.: 76.83   1st Qu.: 3.0567   1st Qu.: 4.101  
+##  Median :129.28   Median : 4.6671   Median : 5.350  
+##  Mean   :145.07   Mean   : 5.2531   Mean   : 6.227  
+##  3rd Qu.:196.47   3rd Qu.: 7.1450   3rd Qu.: 8.736  
+##  Max.   :397.43   Max.   :14.1997   Max.   :12.133
+\end{verbatim}
+
+\pagebreak
+
+\section{3. Parameter fitting}\label{parameter-fitting}
+
+Distributions of the fitted parameters (300 samples).
+\includegraphics{E:/Source/DCGenApp/temp/x_files/figure-latex/unnamed-chunk-4-1.pdf}
+
+Summary of sample input parameters
+
+\begin{verbatim}
+##        M                p                   q         
+##  Min.   : 14.54   Min.   :0.0001348   Min.   :0.6644  
+##  1st Qu.: 76.83   1st Qu.:0.0014658   1st Qu.:0.9133  
+##  Median :129.28   Median :0.0066614   Median :0.9904  
+##  Mean   :145.07   Mean   :0.0091952   Mean   :0.9665  
+##  3rd Qu.:196.47   3rd Qu.:0.0115413   3rd Qu.:1.0474  
+##  Max.   :397.43   Max.   :0.0684298   Max.   :1.1403
+\end{verbatim}
+
+\pagebreak
+
+\section{4. Generated diffusion
+curves}\label{generated-diffusion-curves}
+
+Generated diffusion curves. Statistics of mean and 70\% quantiles
+showed.
+
+\begin{itemize}
+\tightlist
+\item
+  \(N(t)\) Number of cumulated adoptions at \(t\)
+\item
+  \(dN(t)\) New adoptions at \(t\)
+\end{itemize}
+
+\includegraphics{E:/Source/DCGenApp/temp/x_files/figure-latex/unnamed-chunk-6-1.pdf}
+
+Mean curves
+
+\begin{verbatim}
+##  Time      N    dN
+##     0   0.00  1.11
+##     2   6.81  7.33
+##     4  36.10 21.93
+##     6  83.04 21.46
+##     8 115.83 11.62
+##    10 132.61  5.81
+##    12 140.69  2.54
+##    14 143.81  0.83
+##    16 144.75  0.22
+##    18 144.99  0.06
+##    20 145.05  0.01
+\end{verbatim}
+
+\subsection{Reference}\label{reference}
+
+Grimm SE, Stevens JW, Dixon S. Estimating Future Health Technology
+Diffusion Using Expert Beliefs Calibrated to an Established Diffusion
+Model. Value Health. 2018 Aug;21(8):944-950.
+
+
+\end{document}
