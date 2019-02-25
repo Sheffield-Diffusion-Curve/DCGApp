@@ -9,11 +9,11 @@ cuc <- generate_diffusion_continuous(m=100, p=0.058, q=0.543, t_min=0, t_max=20)
 
 
 system.time({
-sol.pq <<-sapply(1:1000, function(x) nt2pq_discrete(140, 4.99, 6.26))
+sol.pq <<-sapply(1:100, function(x) nt2pq_discrete(140, 4.99, 6.26))
 })
 
 system.time({
-  sol.pq <<-sapply(1:1000, function(x) nt2pq_continuous(140, 4.99, 6.26))
+  sol.pq <<-sapply(1:100, function(x) nt2pq_continuous(140, 4.99, 6.26))
 })
 
 

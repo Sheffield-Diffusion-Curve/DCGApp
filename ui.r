@@ -12,7 +12,7 @@ ui <- dashboardPage(
     menuItem("Tutorial", tabName = "tutorial"),
     menuItem(h2("DCG"), tabName = "main"),
     menuItem("Control", numericInput("num_iter", label = "No. Iterations", value = 200, min=0, max=1000),
-             selectInput('agg_method', 'Aggregation method', c("Mixture"="mixture", "Pooling"="average")),
+             selectInput("agg_method", "Aggregation method", c("Mixture"="mixture", "Pooling"="average")),
              numericInput("projT", label = "Projection time", value = 20, min=0, step=1),
              actionButton("dcg", "Generate curves"),
              startExpanded = TRUE),
@@ -21,7 +21,7 @@ ui <- dashboardPage(
     menuItem("About us", tabName = "info")
   )),
   
-  dashboardBody(includeCSS('www/css/main.css'), tabItems(
+  dashboardBody(includeCSS("www/css/main.css"), tabItems(
     tabItem(tabName = "home", box(width = 12, h2("About DCG"), includeMarkdown("www/introduction.md"))),
     
     tabItem(tabName = "methods", 
@@ -39,7 +39,7 @@ ui <- dashboardPage(
                                   uiOutput("ElicitationBox"),
                                   # box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Input Distributions", fluidRow(
                                   #   column(width=3, numericInput("num_iter", label = "No. Iterations", value = 200, min=0, max=1000)),
-                                  #   column(width=3, selectInput('agg_method', 'Aggregation method', c("Mixture"="mixture", "Pooling"="average"))),
+                                  #   column(width=3, selectInput("agg_method", "Aggregation method", c("Mixture"="mixture", "Pooling"="average"))),
                                   #   column(width=3, numericInput("projT", label = "Projection time", value = 20, min=0, step=1)),
                                   #   column(width=3, actionButton("updateBass", "Generate", width="100%")),
                                   #   column(width=12, plotOutput("PlotDistNT", height = "200px"))
@@ -64,7 +64,7 @@ ui <- dashboardPage(
                                                         inline = TRUE),
                                            sliderInput("centVal", label = "Centile(%)", min = 0, max = 100, value = 70),
                                            radioButtons("avgType", "Average", 
-                                                        c("Median"="median", "Mean"="mean", ),
+                                                        c("Median"="median", "Mean"="mean"),
                                                         inline = TRUE)
                                     ),
                                     column(width = 9, plotOutput("PlotBass", height = "400px"))
@@ -75,8 +75,8 @@ ui <- dashboardPage(
             box(width=12, 
                 h3("Download summary report"),
                 p("This document contains all the tables and figures generated from the DifGen of your elicitation input."),
-                radioButtons('format', 'Please select the document format you require', 
-                             c('PDF', 'HTML', 'Word'),
+                radioButtons("format", "Please select the document format you require", 
+                             c("HTML", "Word"), #c("PDF", "HTML", "Word"),
                              inline = TRUE),
                 textInput("fileName", "File name", value="DCG"),
                 downloadButton("downloadReport", "Download summary report"),

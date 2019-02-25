@@ -1,4 +1,7 @@
 ### Bibliography….citation search results and case studies 
+If you use the model, the software should be cited.  The format will vary from journal to journal, however, the APA style for it is:
+
+Diffusion Curve Generator, Release 1.0 [Computer software]. (2018). Retrieved from http://dcg.shef.ac.uk
 The paper that reports the original method and case study is:
 
 - Grimm SE, Stevens JW, Dixon S.  Estimating Future Health Technology Diffusion Using Expert Beliefs Calibrated to an Established Diffusion Model.  Value Health. 2018 Aug;21(8):944-950. doi: 10.1016/j.jval.2018.01.010.

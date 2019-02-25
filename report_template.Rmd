@@ -65,7 +65,7 @@ visualise_curves(curves, dN=input$dnShow,  ci_range=input$centVal, statistics=in
 Average curves (`r input$avgType`)
 
 ```{r, echo=FALSE}
-mcvs
+avg_curves
 ```
 
 ## Reference

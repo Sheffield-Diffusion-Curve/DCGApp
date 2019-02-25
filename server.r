@@ -202,30 +202,7 @@ server <- function(input, output, session) {
     },
     
     content = function(file) {
-      # if (is.null(vals$Curves)) {
-      #   vals$Experts <- inputELCs(vals$Data) 
-      #   
-      #   nt <- input$num_iter
-      #   # Create a Progress object
-      #   progress <- shiny::Progress$new(session, min=1, max=nt)
-      #   progress$set(message = "Translating Data", value = 0)
-      #   
-      #   on.exit(progress$close())
-      #   
-      #   updateProgress <- function(value=NULL, detail =NULL) {
-      #     if (is.null(value)) {
-      #       value <- progress$getValue()
-      #       value <- value + (progress$getMax() - value) / 5
-      #     }
-      #     progress$set(value = value, detail = detail)
-      #   }
-      #   
-      #   vals$Pars <- rand_parameters(vals$Experts, nt, method=input$agg_method, type="continuous")
-      #   
-      #   vals$Curves <- generate_diffusion_curves(vals$Pars, t_max=input$projT, progress=updateProgress, dt=0.5)
-      #   
-      #   vals$CurrentT <- input$projT
-      # }
+
       mcvs <- apply(vals$Curves, c(1, 2), ifelse(input$avgType=="mean", mean, median))
       mcvs <- round(mcvs, 2)
       mcvs <- mcvs[mcvs[, 1] == round(mcvs[, 1]),]
@@ -247,7 +224,7 @@ server <- function(input, output, session) {
       out <- render(input="report_template.Rmd",
                     output_format=format,
                     output_dir="temp", 
-                    envir = list(dat=dat, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
+                    envir = list(dat=vals$Data, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
       
       file.copy(out, file)
     },

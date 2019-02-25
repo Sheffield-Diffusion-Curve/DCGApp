@@ -2,7 +2,7 @@ library(shiny)
 library(shinydashboard)
 library(data.table)
 library(DT)
-source("src/elicitation.r")
+
 source("src/elicitationIO.r")
 
 # See above for the definitions of ui and server

@@ -43,10 +43,10 @@ This is freely available via Github.  Search for Sheffield-Diffusion-Curve
 We will be submitting this to a journal in the near future.
 
 ### How should I report the use of the tool in a paper?
-Clearly, this is ultimately up to you.  It must meet the requirements of the publisher, but we would suggest that you cite the original paper (Grimm et al, 2018) that developed the method and which is peer reviewed.  The URL for the tool should also be cited.
+Clearly, this is ultimately up to you.  It must meet the requirements of the publisher, but we would suggest that you cite the original paper (Grimm et al, 2018) that developed the methods and which is peer reviewed.  The URL for the tool should also be cited.
 
 ### How quick is the DCG?
-Very quick. It will run in around 1 second for 1000 re-samples. If its performance drops much below this, please let us know.
+Very quick. It will run in around 3 second for 1000 re-samples, but might a bit slower due to server loading. If its performance drops much below this, please let us know.
 
 
 

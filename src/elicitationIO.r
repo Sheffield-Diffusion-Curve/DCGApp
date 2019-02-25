@@ -1,23 +1,44 @@
 library(data.table)
 library(DCGen)
 
+# getDefaultInputData <- function() {
+#   data.table(
+#     Expert = c("Expert A", "Expert B", "Expert C"),
+#     M = rep("Triangle", 3),
+#     M_1 = c(54.2, 158.8, 204.4),    
+#     M_2 = c(10, 30, 30),
+#     M_3 = c(150, 230, 410),
+#     N = rep("Triangle", 3),
+#     N_1 = c(2.3, 5.7, 7.1),
+#     N_2 = c(0, 2, 2),
+#     N_3 = c(5, 15, 10),
+#     "T" = rep("Normal", 3),
+#     T_1 = c(5.1, 9.9, 3.5),
+#     T_2 = c(1.5, 1.5, 1.1),
+#     T_3 = c(NA, NA, NA)
+#   )
+# }
+
+
 getDefaultInputData <- function() {
   data.table(
     Expert = c("Expert A", "Expert B", "Expert C"),
-    M = rep("Triangle", 3),
-    M_1 = c(54.2, 158.8, 204.4),    
-    M_2 = c(10, 30, 30),
-    M_3 = c(150, 230, 410),
-    N = rep("Triangle", 3),
-    N_1 = c(2.3, 5.7, 7.1),
-    N_2 = c(0, 2, 2),
-    N_3 = c(5, 15, 10),
-    "T" = rep("Normal", 3),
-    T_1 = c(5.1, 9.9, 3.5),
-    T_2 = c(1.5, 1.5, 1.1),
+    M = rep("Gamma", 3),
+    M_1 = round(c(3.03, 12.374, 2.8056), 2),   
+    M_2 = round(1/c(17.8452, 12.84931, 71.641), 2),
+    M_3 = c(NA, NA, NA),
+    N = rep("Gamma", 3),
+    N_1 = round(c(4.18559, 5.085, 11.0953), 2),
+    N_2 = round(1/c(0.53278, 1.095314, 0.59769), 2),
+    N_3 = c(NA, NA, NA),
+    "T" = rep("Gamma", 3),
+    T_1 = round(c(22.21202, 38.27075, 14.34556), 2),
+    T_2 = round(1/c(0.229155, 0.260251, 0.246069), 2),
     T_3 = c(NA, NA, NA)
   )
 }
+
+
 
 
 getNewInputData <- function(id) {
