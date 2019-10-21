@@ -220,16 +220,19 @@ server <- function(input, output, session) {
       format <-  switch(
         input$format,
         PDF=pdf_document(), HTML=html_document(), Word=word_document())
-      src <- normalizePath("report_template.Rmd")
-      owd <- setwd(tempdir())
-      file.copy(src, "report_template.Rmd", overwrite = TRUE)
-      on.exit(setwd(owd))
-      out <- render(input="report_template.Rmd",
+
+      tempReport <- file.path(tempdir(), "report_template.Rmd")
+      file.copy("report_template.Rmd", tempReport, overwrite = TRUE)
+
+      out <- render(input="report_template.Rmd", 
                     output_format=format,
                     output_dir="temp", 
                     envir = list(dat=vals$Data, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
       
       file.copy(out, file)
+
+
+      
     },
     contentType = "text/plain"
   )
