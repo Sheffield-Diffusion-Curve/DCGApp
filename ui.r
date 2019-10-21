@@ -51,7 +51,7 @@ ui <- dashboardPage(
                                     column(width=12, h4("Fitted")),
                                     column(width=12, plotOutput("PlotDistPQ", height = "200px"))
                                   )),
-                                  
+
                                   # box(width = 12, collapsible = TRUE, collapsed = TRUE, title = "Output Distributions", fluidRow(
                                   #   #actionButton("updateBass", "Update"),
                                   #   plotOutput("PlotDistPQ", height = "200px")
@@ -60,7 +60,7 @@ ui <- dashboardPage(
                                     column(width = 3,
                                            checkboxInput("dnShow", label = "Show new adoptions", value = TRUE),
                                            radioButtons("curveType", "Showing curves", 
-                                                        c("Row curves"="curves", "Statistics"="stats"),
+                                                        c("Individual samples"="curves", "Summary"="stats"),
                                                         inline = TRUE),
                                            sliderInput("centVal", label = "Centile(%)", min = 0, max = 100, value = 70),
                                            radioButtons("avgType", "Average", 

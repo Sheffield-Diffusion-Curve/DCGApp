@@ -221,7 +221,7 @@ server <- function(input, output, session) {
         input$format,
         PDF=pdf_document(), HTML=html_document(), Word=word_document())
   
-      out <- render(input="report_template.Rmd",
+      out <- render(input=normalizePath("report_template.Rmd"),
                     output_format=format,
                     output_dir="temp", 
                     envir = list(dat=vals$Data, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
