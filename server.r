@@ -229,8 +229,8 @@ server <- function(input, output, session) {
       
       out <- render(tempReport, 
                     output_format=format,
-                    intermediates_dir=tempdir(),
-                    output_dir="temp", 
+                    intermediates_dir=tempdir(), knit_root_dir=tempdir(),
+                    output_dir=tempdir(), 
                     envir = list(dat=vals$Data, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
       
       file.copy(out, file)
