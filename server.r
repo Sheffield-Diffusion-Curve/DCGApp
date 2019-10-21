@@ -221,17 +221,19 @@ server <- function(input, output, session) {
         input$format,
         PDF=pdf_document(), HTML=html_document(), Word=word_document())
 
+      #owd <- setwd(tempdir())
+      #on.exit(setwd(owd))
       tempReport <- file.path(tempdir(), "report_template.Rmd")
       file.copy("report_template.Rmd", tempReport, overwrite = TRUE)
 
-      out <- render(input="report_template.Rmd", 
+      
+      out <- render(tempReport, 
                     output_format=format,
+                    intermediates_dir=tempdir(),
                     output_dir="temp", 
                     envir = list(dat=vals$Data, pars=vals$Pars, curves=vals$Curves, avg_curves=mcvs, input=input))
       
       file.copy(out, file)
-
-
       
     },
     contentType = "text/plain"
